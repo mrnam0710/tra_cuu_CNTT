@@ -7,13 +7,16 @@
 </head>
 <body>
   <div class="container mt-5">
+    <!-- Using ThongTin_Truong variable as passed from Flask -->
     <h2>{{ ThongTin_Truong.ten_truong }}</h2>
+    <p><strong>Mã trường:</strong> {{ ThongTin_Truong.ma_truong }}</p>
     <p><strong>Tên Tiếng Anh:</strong> {{ ThongTin_Truong.ten_t_a }}</p>
-    <p><strong>Thành lập:</strong> {{ ThongTin_Truong.thanh_lap }}</p>
+    <p><strong>Năm thành lập:</strong> {{ ThongTin_Truong.thanh_lap }}</p>
     <p><strong>Loại hình:</strong> {{ ThongTin_Truong.loai_hinh }}</p>
-    <p><strong>Vị Trí:</strong> {{ ThongTin_Truong.vi_tri }}</p>
+    <p><strong>Địa chỉ:</strong> {{ ThongTin_Truong.vi_tri }}</p> <!-- Changed Vị Trí to Địa chỉ for clarity -->
     <p><strong>Website:</strong> <a href="{{ ThongTin_Truong.website }}" target="_blank">{{ ThongTin_Truong.website }}</a></p>
-    <a href="/ThongTin_Truong" class="btn btn-secondary mt-3">Quay lại danh sách</a>
+    <!-- Changed href to /truong -->
+    <a href="/truong" class="btn btn-secondary mt-3">Quay lại danh sách</a>
   </div>
 </body>
 </html>
