@@ -9,45 +9,89 @@
   <div class="container mt-5">
     <h2 class="mb-4">Tra cứu trường đào tạo ngành CNTT</h2>
 
-    <!-- Form action points to /truong -->
-    <form class="row g-3 mb-4" method="GET" action="/truong">
-      <div class="col-md-5">
-        <!-- Added value attribute to retain search term -->
-        <input type="text" name="ten_truong" class="form-control" placeholder="Nhập tên trường..." value="{{ request.args.get('ten_truong', '') }}">
-      </div>
-      <div class="col-md-4">
-         <!-- Added selected attribute to retain selection -->
-         <select name="tinh_thanh" class="form-select">
-            <option value="">-- Chọn tỉnh/thành --</option>
-            <!-- You might want to add more options based on your data -->
-            <option value="Hà Nội" {% if request.args.get('tinh_thanh') == 'Hà Nội' %}selected{% endif %}>Hà Nội</option>
-            <option value="TP.HCM" {% if request.args.get('tinh_thanh') == 'TP.HCM' %}selected{% endif %}>TP.HCM</option>
-            <option value="Đà Nẵng" {% if request.args.get('tinh_thanh') == 'Đà Nẵng' %}selected{% endif %}>Đà Nẵng</option>
-            <!-- Add other relevant cities/provinces -->
-        </select>
+    <!-- Form chính bao gồm cả tìm kiếm và lọc -->
+    <form class="row g-3 mb-4 align-items-end" method="GET" action="/truong">
+
+      <!-- Phần tìm kiếm ban đầu -->
+      <div class="col-md-6">
+        <label for="ten_truong_search" class="form-label">Nhập tên trường:</label>
+        <!-- Đổi name để phân biệt với giá trị lọc -->
+        <input type="text" name="ten_truong_search" id="ten_truong_search" class="form-control" placeholder="Nhập tên trường..." value="{{ search_term }}">
       </div>
       <div class="col-md-3">
-        <button type="submit" class="btn btn-success w-100">Tìm kiếm</button> <!-- Added w-100 for better alignment -->
+        <!-- Nút Tìm kiếm chỉ gửi ten_truong_search -->
+         <button type="submit" class="btn btn-success w-100">Tìm kiếm</button>
       </div>
+      <div class="col-md-3">
+          <a href="/truong" class="btn btn-secondary w-100">Xem tất cả / Đặt lại</a>
+      </div>
+
+
+      <!-- Phần Lọc (Hiển thị sau khi có kết quả hoặc luôn hiển thị) -->
+      <hr class="my-4">
+      <h5 class="col-12">Bộ lọc chi tiết:</h5>
+
+      <div class="col-md-4">
+        <label for="mien" class="form-label">Lọc theo Miền:</label>
+        <select name="mien" id="mien" class="form-select">
+          <option value="">-- Chọn Miền --</option>
+          <option value="Miền Bắc" {% if selected_mien == 'Miền Bắc' %}selected{% endif %}>Miền Bắc</option>
+          <option value="Miền Trung" {% if selected_mien == 'Miền Trung' %}selected{% endif %}>Miền Trung</option>
+          <option value="Miền Nam" {% if selected_mien == 'Miền Nam' %}selected{% endif %}>Miền Nam</option>
+        </select>
+      </div>
+
+      <div class="col-md-5">
+        <label for="tinh_thanh" class="form-label">Lọc theo Tỉnh/Thành:</label>
+        <select name="tinh_thanh" id="tinh_thanh" class="form-select">
+           <option value="">-- Chọn Tỉnh/Thành --</option>
+           {% for tinh in tinh_thanh_options %}
+           <option value="{{ tinh }}" {% if selected_tinh == tinh %}selected{% endif %}>{{ tinh }}</option>
+           {% endfor %}
+           <!-- Có thể thêm các tỉnh khác -->
+        </select>
+        <!-- Hoặc dùng input text nếu muốn người dùng tự nhập -->
+        <!-- <input type="text" name="tinh_thanh" class="form-control" placeholder="Nhập tỉnh/thành..." value="{{ selected_tinh }}"> -->
+      </div>
+
+      <div class="col-md-3">
+         <!-- Nút Lọc sẽ gửi tất cả các trường trong form -->
+         <button type="submit" class="btn btn-primary w-100">Áp dụng Lọc</button>
+      </div>
+
     </form>
 
-    <div class="row">
+    <!-- Hiển thị kết quả -->
+    <div class="row mt-4">
+       {% if error_message %}
+            <div class="alert alert-danger" role="alert">
+                {{ error_message }}
+            </div>
+       {% endif %}
+
       {% if ds_truong %}
         {% for t in ds_truong %}
         <div class="col-md-6 mb-4">
-          <div class="card shadow-sm"> <!-- Added shadow-sm for subtle shadow -->
-            <div class="card-body">
+          <div class="card shadow-sm h-100"> <!-- h-100 để các card cao bằng nhau -->
+            <div class="card-body d-flex flex-column"> <!-- d-flex và flex-column để nút ở cuối -->
               <h5 class="card-title">{{ t.ten_truong }} ({{ t.ma_truong }})</h5>
-              <!-- Changed t.dia_chi to t.vi_tri -->
-              <p class="card-text"><strong>Địa chỉ:</strong> {{ t.vi_tri }}</p>
-              <!-- Link points to /truong/<ma_truong> -->
-              <a href="/truong/{{ t.ma_truong }}" class="btn btn-primary">Xem chi tiết</a>
+              <p class="card-text mb-1"><small class="text-muted">{{ t.ten_t_a }}</small></p>
+              <p class="card-text mb-1"><strong>Địa chỉ:</strong> {{ t.vi_tri }}</p>
+              <p class="card-text mb-1"><strong>Loại hình:</strong> {{ t.loai_hinh }}</p>
+              <p class="card-text mb-1"><strong>Miền:</strong> {{ t.mien if t.mien else 'N/A' }}</p> <!-- Hiển thị miền -->
+              <p class="card-text"><strong>Website:</strong> <a href="{{ t.website }}" target="_blank" rel="noopener noreferrer">{{ t.website }}</a></p>
+              <!-- mt-auto đẩy nút xuống dưới cùng -->
+              <a href="/truong/{{ t.ma_truong }}" class="btn btn-primary mt-auto">Xem chi tiết</a>
             </div>
           </div>
         </div>
         {% endfor %}
       {% else %}
-        <p class="text-center">Không tìm thấy trường nào phù hợp.</p>
+         {% if request.args %} <!-- Chỉ hiện không tìm thấy nếu đã có tìm kiếm/lọc -->
+            <p class="text-center">Không tìm thấy trường nào phù hợp với tiêu chí.</p>
+         {% else %}
+             <p class="text-center">Nhập tên trường để bắt đầu tìm kiếm hoặc sử dụng bộ lọc.</p>
+         {% endif %}
       {% endif %}
     </div>
      <div class="mt-4 text-center">
