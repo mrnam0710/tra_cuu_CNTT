@@ -9,34 +9,49 @@
   <div class="container mt-5">
     <h2 class="mb-4">Tra cứu trường đào tạo ngành CNTT</h2>
 
+    <!-- Form action points to /truong -->
     <form class="row g-3 mb-4" method="GET" action="/truong">
       <div class="col-md-5">
-        <input type="text" name="ten_truong" class="form-control" placeholder="Nhập tên trường...">
+        <!-- Added value attribute to retain search term -->
+        <input type="text" name="ten_truong" class="form-control" placeholder="Nhập tên trường..." value="{{ request.args.get('ten_truong', '') }}">
       </div>
       <div class="col-md-4">
-        <select name="tinh_thanh" class="form-select">
-          <option value="">-- Chọn tỉnh/thành --</option>
-          <option value="Hà Nội">Hà Nội</option>
-          <option value="TP.HCM">TP.HCM</option>
+         <!-- Added selected attribute to retain selection -->
+         <select name="tinh_thanh" class="form-select">
+            <option value="">-- Chọn tỉnh/thành --</option>
+            <!-- You might want to add more options based on your data -->
+            <option value="Hà Nội" {% if request.args.get('tinh_thanh') == 'Hà Nội' %}selected{% endif %}>Hà Nội</option>
+            <option value="TP.HCM" {% if request.args.get('tinh_thanh') == 'TP.HCM' %}selected{% endif %}>TP.HCM</option>
+            <option value="Đà Nẵng" {% if request.args.get('tinh_thanh') == 'Đà Nẵng' %}selected{% endif %}>Đà Nẵng</option>
+            <!-- Add other relevant cities/provinces -->
         </select>
       </div>
       <div class="col-md-3">
-        <button type="submit" class="btn btn-success">Tìm kiếm</button>
+        <button type="submit" class="btn btn-success w-100">Tìm kiếm</button> <!-- Added w-100 for better alignment -->
       </div>
     </form>
 
     <div class="row">
-      {% for t in ds_truong %}
-      <div class="col-md-6 mb-4">
-        <div class="card shadow">
-          <div class="card-body">
-            <h5 class="card-title">{{ t.ten_truong }}</h5>
-            <p class="card-text">Địa chỉ: {{ t.dia_chi }}</p>
-            <a href="/truong/{{ t.ma_truong }}" class="btn btn-primary">Xem chi tiết</a>
+      {% if ds_truong %}
+        {% for t in ds_truong %}
+        <div class="col-md-6 mb-4">
+          <div class="card shadow-sm"> <!-- Added shadow-sm for subtle shadow -->
+            <div class="card-body">
+              <h5 class="card-title">{{ t.ten_truong }} ({{ t.ma_truong }})</h5>
+              <!-- Changed t.dia_chi to t.vi_tri -->
+              <p class="card-text"><strong>Địa chỉ:</strong> {{ t.vi_tri }}</p>
+              <!-- Link points to /truong/<ma_truong> -->
+              <a href="/truong/{{ t.ma_truong }}" class="btn btn-primary">Xem chi tiết</a>
+            </div>
           </div>
         </div>
-      </div>
-      {% endfor %}
+        {% endfor %}
+      {% else %}
+        <p class="text-center">Không tìm thấy trường nào phù hợp.</p>
+      {% endif %}
+    </div>
+     <div class="mt-4 text-center">
+        <a href="/" class="btn btn-secondary">Quay lại trang chủ</a>
     </div>
   </div>
 </body>
